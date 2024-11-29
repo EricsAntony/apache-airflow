@@ -33,9 +33,9 @@ def get_postgres_connection():
     return conn
         
 def get_dynamodb_client():
-    return boto3.client('dynamodb', region_name='ap-south-1', aws_access_key_id='ASIAUBCWNNSUXJII6SFD',
-                        aws_secret_access_key='EtFPb59MWD3PpJdmwLI0EsF/0q/8ZXNuC3YLcbDr',
-                        aws_session_token='IQoJb3JpZ2luX2VjEMr//////////wEaDmFwLXNvdXRoZWFzdC0xIkYwRAIgdMUg82rs6BMayxA6FWvtowGtKa8VWesv212oEayaQaICIFtkJ1ZuDHVyzbbx5ealUrhtxonkAgT7Y2gmXs11EO2pKooDCHMQARoMMjc3MjA2NjI1NDQ5Igz3TX/fP+tadr6N08kq5wJ/A4xT+HNXIz32eEkRdGMRXVEK4co6z+sjv0SuPG5HfBpJKJElKxRfYV3W4OWtvCOuCKA80K9Zd6eLuUvmET5LsGiAOZImVHeO6QrM6nOtrS5Evde16SIzh+RwVFIh4IYhrU+o7T+WzqHzVD7qYlYSV45b3CQEI1z8sJF5U/Gs7V5UfAvl7MoFxbWmoM9SVvDSm0B9TpszvQIZ+0csCBl67+tlg3G03EK3n/VoerL/atGTaEp3jCvLA0ho3fCHn46OU2XxAUFmW6jrHmqS0mXBLM3ssL5vzXG20KasMNJQNcEZ7E+sgtWQWyTwb5Z67no17liJoh7+NO5FOzYI/YJfdDFuxHL4DPOOP4awFCFzOKn+frDJnRUKmzNdHAylQrnkDHgfFpq5xunptEouKeZCb1YU29JJfZBZRwktFf3+8io6w8WpeD6vi+oOUBTl+aRzRA/rkjj5vEWJ7RJap1Jkuy+2Q9T4BzCop6a6BjqnAXyZTx0DRQsYxlsQUr+6BC+sa8fZBYiHEoKwfkji/udBrEBJljhOC8wYdYunWlE8ee8KPKNrlEm/WDpna2pkBaQFI7SXH1r9OSrPR2GnczkexuGMYPgp/J2SyKbI/X76RdiO4GvpYisKaVw4lqG1U5KuNexcbTTihqgfxnwngeiJ7h8EBJpDtvA4wHiByx2hRgYn4IWVwcRG9Avw1jtF9y0bzxxJGs8L')  
+    return boto3.client('dynamodb', region_name='ap-south-1', aws_access_key_id='',
+                        aws_secret_access_key='',
+                        aws_session_token='')  
 
 def store_data_to_file(data, filename='dynamo_data.json'):
     try:
