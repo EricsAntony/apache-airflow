@@ -70,12 +70,21 @@ def insert_data_to_postgresql(ti, **kwargs):
         cursor = conn.cursor()
 
         values_for_checkout = []
+        
+        booking_ids = fetch_ids('id', 'test_analytics.hotel_booking')
+        skip_count_for_invalid_id = 0
 
         for dynamo_item in data:
             booking_id = dynamo_item.get('BookingId', {}).get('S', '')
             created_at = dynamo_item.get('CheckOutTime', {}).get('S', 0)
             channel = dynamo_item.get('Channel', {}).get('S', '')
 
+            if booking_id not in booking_ids:
+                logging.info(f"No booking found for {booking_id} in hotel_booking table")
+                store_skip_data_to_file(dynamo_item, 'No booking in hotel_booking table', 'skipped_new_checkout_implenetation_no_booking_id.json')
+                skip_count_for_invalid_id += 1
+                continue
+            
             try:
                 timestamp = int(created_at)
                 date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
@@ -100,6 +109,7 @@ def insert_data_to_postgresql(ti, **kwargs):
             extras.execute_values(cursor, insert_query_booking_checkout_table, values_for_checkout)
 
         conn.commit()
+        logging.info(f"Skipped {skip_count_for_invalid_id} records due to invalid booking_id.")
         logging.info(f"Inserted {len(values_for_checkout)} records into PostgreSQL.")
 
     except Exception as e:

@@ -87,8 +87,8 @@ def insert_data_to_postgresql(ti, **kwargs):
             checkin_date = convert_to_date(dynamo_item.get('CheckinDate', {}).get('S', ''))
             checkout_date = convert_to_date(dynamo_item.get('CheckoutDate', {}).get('S', ''))
             guest_count_data = dynamo_item.get('GuestCount', {}).get('M', {})
-            adult_count = int(guest_count_data.get('Adult', {}).get('N', 0))
-            children_count = int(guest_count_data.get('Children', {}).get('N', 0))
+            adult_count = int(guest_count_data.get('Adult', {}).get('S', '0'))
+            children_count = int(guest_count_data.get('Children', {}).get('S', '0'))
             numberOfGuests = adult_count + children_count
             reservationType = dynamo_item.get('ReservationType', {}).get('S', '')
             pmsStatus = 'CONFIRMED'

@@ -15,7 +15,9 @@ def pull_data_from_dynamodb(**kwargs):
     
     extractedData, haveData = extract_data_from_file(fileName, **kwargs)
     if haveData:
+        logging.info(f"Got {len(extractedData)} from file: {fileName}")
         return extractedData
+    
     pk_value = "HOTEL#"
     sk_value = "CHECKIN_FAIL_LOG#"
 
@@ -63,23 +65,13 @@ def insert_data_to_postgresql(ti, **kwargs):
         logging.warning("No data received from DynamoDB.")
         return
 
-    db_host = 'analytics.cxwyoy2imfyo.us-east-1.rds.amazonaws.com'
-    db_name = 'sampledatabase'
-    db_user = 'postgres'
-    db_password = 'B3RwuvCp6AAnmpe1bHDt'
-    db_port = 5432  
-
     try:
-        conn = psycopg2.connect(
-            host=db_host,
-            dbname=db_name,
-            user=db_user,
-            password=db_password,
-            port=db_port
-        )
+        conn = get_postgres_connection()
         cursor = conn.cursor()
+        
+        hotel_ids = fetch_ids('id', 'test_analytics.hotel')
+        skip_count_no_hotel_id = 0
 
-        # Prepare a list of tuples for bulk insert
         bulk_data = []
         for dynamo_item in data:
             hotel_id = dynamo_item.get('hotelId', {}).get('S', '')
@@ -96,8 +88,12 @@ def insert_data_to_postgresql(ti, **kwargs):
                 date = None  
 
             logging.info(f"Formatted date: {date}")
+            
+            if hotel_id not in hotel_ids:
+                skip_count_no_hotel_id += 1
+                logging.info(f"Skipping record with missing hotel ID: {failId}")
+                continue
 
-            # Collect data for bulk insertion
             bulk_data.append((
                 failId,
                 hotel_id,
@@ -108,16 +104,15 @@ def insert_data_to_postgresql(ti, **kwargs):
             ))
 
         if bulk_data:
-            # Use execute_values for bulk insert
             insert_query = """
                 INSERT INTO test_analytics.booking_check_in_fail_log (
                     fail_id, hotel_id, booking_id, message, type, created_at
-                ) VALUES %s;
+                ) VALUES %s ON CONFLICT (fail_id) DO NOTHING;
             """
 
-            # Perform the bulk insert
             execute_values(cursor, insert_query, bulk_data)
             conn.commit()
+            logging.info(f"Skipped {skip_count_no_hotel_id} because invalid hotel id")
             logging.info(f"Inserted {len(bulk_data)} records into PostgreSQL.")
 
         else:
